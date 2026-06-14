@@ -1,0 +1,24 @@
+# Firebase App Hosting config — use in Phase 1+ when SSR/dynamic routes are needed.
+# Requires Blaze plan. See docs/FIREBASE_SETUP.md §10.
+#
+# Deploy: npx -y firebase-tools@latest deploy --only apphosting
+# Docs: https://firebase.google.com/docs/app-hosting
+
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  concurrency: 80
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: FIREBASE_API_KEY
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: future-pets-3.firebaseapp.com
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: future-pets-3
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: future-pets-3.firebasestorage.app
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "1094867487299"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    secret: FIREBASE_APP_ID
