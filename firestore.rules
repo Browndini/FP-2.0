@@ -18,6 +18,12 @@ service cloud.firestore {
         allow read: if request.auth != null && request.auth.uid == uid;
         allow write: if false;
       }
+
+      // Trade history: own read only; writes via Cloud Functions
+      match /tradeHistory/{entryId} {
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow write: if false;
+      }
     }
 
     // Usernames index: public read for profile lookups; writes via Cloud Functions only
@@ -35,6 +41,22 @@ service cloud.firestore {
     // Mini-game sessions: owner read only; all writes via Cloud Functions
     match /miniGameSessions/{sessionId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow write: if false;
+    }
+
+    // Trades: participants read only; all writes via Cloud Functions
+    match /trades/{tradeId} {
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.fromUid
+                      || request.auth.uid == resource.data.toUid);
+      allow write: if false;
+    }
+
+    // Breeding pairs: participants read only; all writes via Cloud Functions
+    match /breedingPairs/{pairId} {
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.ownerAUid
+                      || request.auth.uid == resource.data.ownerBUid);
       allow write: if false;
     }
 

@@ -320,3 +320,66 @@ export function computeMiniGameRewards(score: number) {
     happinessGain: MINI_GAME_REWARDS.happinessGain,
   };
 }
+
+/** Trading — keep in sync with functions/src/constants.ts */
+export const TRADE_COOLDOWN_DAYS = 7;
+export const TRADE_EXPIRY_HOURS = 72;
+export const TRADE_MAX_CREDITS = 5000;
+export const TRADE_MAX_ITEM_QUANTITY = 10;
+
+export type TradeStatus = "pending" | "cancelled" | "completed";
+
+export interface TradeItemLine {
+  itemId: string;
+  quantity: number;
+}
+
+export interface TradeDoc {
+  fromUid: string;
+  fromUsername: string;
+  toUid: string;
+  toUsername: string;
+  status: TradeStatus;
+  offeredItems: TradeItemLine[];
+  requestedItems: TradeItemLine[];
+  offeredCredits: number;
+  requestedCredits: number;
+  offeredPetId?: string | null;
+  requestedPetId?: string | null;
+  createdAt: import("firebase/firestore").Timestamp;
+  expiresAt: import("firebase/firestore").Timestamp;
+  completedAt?: import("firebase/firestore").Timestamp | null;
+  cancelledAt?: import("firebase/firestore").Timestamp | null;
+  cancelledBy?: string | null;
+}
+
+/** Breeding — keep in sync with functions/src/constants.ts */
+export const BREEDING_MIN_LEVEL = 10;
+export const BREEDING_COOLDOWN_DAYS = 7;
+export const BREEDING_INCUBATION_HOURS = 48;
+export const BREEDING_FEE_CREDITS = 100;
+export const BREEDING_MAX_PETS = 5;
+export const BREEDING_EGG_ITEM_ID = "breeding-egg";
+
+export type BreedingStatus = "pending" | "incubating" | "hatched" | "cancelled";
+
+export interface BreedingPairDoc {
+  ownerAUid: string;
+  ownerBUid: string;
+  ownerAUsername: string;
+  ownerBUsername: string;
+  petAId: string;
+  petBId?: string | null;
+  status: BreedingStatus;
+  eggId: string;
+  hatchAt?: import("firebase/firestore").Timestamp | null;
+  createdAt: import("firebase/firestore").Timestamp;
+  acceptedAt?: import("firebase/firestore").Timestamp | null;
+  offspringSpeciesId?: string;
+  offspringRarity?: string;
+  offspringStats?: Record<string, number>;
+  offspringLevelCostMultiplier?: number;
+  offspringGrowthTier?: string;
+  hatchedByA?: boolean;
+  hatchedByB?: boolean;
+}

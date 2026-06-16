@@ -2,7 +2,7 @@
 
 Phased build plan with acceptance criteria, likely files, Firebase changes, and AI prompt templates.
 
-**Current phase: 4**
+**Current phase: 6**
 
 ---
 
@@ -198,10 +198,10 @@ functions/src/createStarterPet.ts
 
 ### Acceptance criteria
 
-- [ ] Items locked in escrow during pending trade
-- [ ] Atomic swap on accept; no duplication exploits
-- [ ] Trade history visible to both parties
-- [ ] Pets are tradable
+- [x] Items locked in escrow during pending trade
+- [x] Atomic swap on accept; no duplication exploits
+- [x] Trade history visible to both parties
+- [x] Pets are tradable (swap-only between two players)
 
 ### AI prompt template
 
@@ -223,10 +223,10 @@ functions/src/createStarterPet.ts
 
 ### Acceptance criteria
 
-- [ ] Two players can initiate breeding pair
-- [ ] Egg incubates over real time
-- [ ] Hatch creates new pet with inherited stats + rarity roll
-- [ ] Breeding cooldown enforced per pet
+- [x] Two players can initiate breeding pair
+- [x] Egg incubates over real time
+- [x] Hatch creates new pet with inherited stats + rarity roll
+- [x] Breeding cooldown enforced per pet
 
 ### AI prompt template
 

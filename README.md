@@ -107,7 +107,21 @@ Static export output is written to `out/` for Firebase Hosting. `npm start` is n
 - [x] Reflex Dash (speed) and Memory Match (intelligence)
 - [x] Session tracking in `miniGameSessions` + `startMiniGameSession` / `claimMiniGameReward`
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for Phases 5–7.
+### Phase 5 — Trading (complete)
+
+- [x] Trade hub at `/trades` with create, accept, and cancel flows
+- [x] Escrow for offered items/credits; atomic swap via `executeTrade`
+- [x] Trade history log for both parties
+- [x] 7-day new-account trade cooldown; pet swap support
+
+### Phase 6 — Breeding (complete)
+
+- [x] Breeding hub at `/breeding` with partner invites and egg incubation
+- [x] `breedingPairs` collection + egg inventory items
+- [x] `initiateBreeding`, `respondBreeding`, `cancelBreeding`, `hatchEgg` Cloud Functions
+- [x] Inheritance + shiny parent bonus; per-pet breeding cooldown
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for Phase 7.
 
 ---
 

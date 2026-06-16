@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, query, limit } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import type { PetWithId, PetDoc } from "./types";
 
@@ -16,7 +16,11 @@ export function usePet(uid: string | undefined) {
       return;
     }
 
-    const q = query(collection(db, "users", uid, "pets"), limit(1));
+    const q = query(
+      collection(db, "users", uid, "pets"),
+      orderBy("createdAt", "asc"),
+      limit(1)
+    );
     const unsubscribe = onSnapshot(q, (snap) => {
       if (snap.empty) {
         setPet(null);

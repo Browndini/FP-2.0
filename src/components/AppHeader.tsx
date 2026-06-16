@@ -16,6 +16,8 @@ const NAV = [
   { href: "/dashboard", label: "My pet" },
   { href: "/games", label: "Games" },
   { href: "/shop", label: "Shop" },
+  { href: "/trades", label: "Trades" },
+  { href: "/breeding", label: "Breed" },
 ] as const;
 
 export function AppHeader({

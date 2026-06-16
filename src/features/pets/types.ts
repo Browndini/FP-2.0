@@ -26,6 +26,10 @@ export interface PetDoc {
   lastCareAt: Timestamp;
   lastDecayAppliedAt: Timestamp;
   isPublic: boolean;
+  inTradeId?: string | null;
+  activeBreedingPairId?: string | null;
+  lastBredAt?: Timestamp | null;
+  bredFromPairId?: string | null;
 }
 
 export interface PetWithId extends PetDoc {

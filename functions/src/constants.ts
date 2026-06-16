@@ -179,6 +179,25 @@ export function computeMiniGameRewards(score: number) {
   };
 }
 
+export const TRADE_COOLDOWN_DAYS = 7;
+export const TRADE_EXPIRY_HOURS = 72;
+export const TRADE_MAX_CREDITS = 5000;
+export const TRADE_MAX_ITEM_QUANTITY = 10;
+
+export interface TradeItemLine {
+  itemId: string;
+  quantity: number;
+}
+
+export const BREEDING_MIN_LEVEL = 10;
+export const BREEDING_COOLDOWN_DAYS = 7;
+export const BREEDING_INCUBATION_HOURS = 48;
+export const BREEDING_FEE_CREDITS = 100;
+export const BREEDING_MAX_PETS = 5;
+export const BREEDING_EGG_ITEM_ID = "breeding-egg";
+
+export const SKILL_STATS = ["strength", "speed", "defense", "intelligence"] as const;
+
 export const STARTER_SPECIES = [
   {
     id: "emberfox",
