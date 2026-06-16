@@ -102,6 +102,8 @@ export const createStarterPet = onCall<CreateStarterPetInput>(
       totalXp: 0,
       levelCostMultiplier,
       growthTier,
+      careCooldowns: {},
+      freeRenameUsed: false,
       createdAt: now,
       lastCareAt: now,
       lastDecayAppliedAt: now,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Link from "next/link";
 import { httpsCallable } from "firebase/functions";
 import { doc, updateDoc } from "firebase/firestore";
 import { SHOP_ITEMS } from "@/lib/constants/game";
@@ -9,6 +8,7 @@ import { db, functions } from "@/lib/firebase/client";
 import { useAuth } from "@/features/auth";
 import { usePet } from "@/features/pets";
 import { useInventory } from "./useInventory";
+import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,19 +64,7 @@ export function ShopPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="border-b border-border/60 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-xl font-bold tracking-tight text-primary">Shop</span>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              {userDoc?.credits ?? 0} credits
-            </span>
-            <Link href="/dashboard">
-              <Button variant="outline" size="sm">Back to pet</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <AppHeader credits={userDoc?.credits ?? 0} username={userDoc?.username} />
 
       <main className="flex-1">
         <div className="mx-auto w-full max-w-6xl px-6 py-8 space-y-8">

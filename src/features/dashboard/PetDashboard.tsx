@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShopLinkButton } from "@/components/AppHeader";
 import { NEED_STATS, SKILL_STATS, SHOP_ITEMS, STARTER_SPECIES } from "@/lib/constants/game";
 import { xpToNextLevel } from "@/lib/leveling";
 import type { PetWithId } from "@/features/pets/types";
@@ -108,6 +109,19 @@ export function PetDashboard({ pet, credits, onCreditsChange }: PetDashboardProp
         credits={credits}
         onCreditsChange={onCreditsChange}
       />
+
+      <Card className="rounded-2xl border-primary/20 bg-primary/5">
+        <CardContent className="flex flex-col items-start justify-between gap-4 pt-6 sm:flex-row sm:items-center">
+          <div className="space-y-1">
+            <p className="font-semibold">Cosmetic shop</p>
+            <p className="text-sm text-muted-foreground">
+              You have {credits.toLocaleString()} credits — browse accessories for{" "}
+              {pet.name}.
+            </p>
+          </div>
+          <ShopLinkButton size="sm" />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="rounded-2xl">

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/features/auth";
-import { SignInButton } from "@/features/auth";
+import { useAuthRedirect, SignInButton } from "@/features/auth";
 import { cn } from "@/lib/utils";
 
 const features = [
@@ -38,17 +36,16 @@ const features = [
 ] as const;
 
 export default function Home() {
-  const { user, userDoc, loading } = useAuth();
   const router = useRouter();
+  const { isReady, user, loading } = useAuthRedirect("public");
 
-  useEffect(() => {
-    if (loading || !user) return;
-    if (userDoc?.onboardingComplete) {
-      router.replace("/dashboard");
-    } else {
-      router.replace("/onboarding");
-    }
-  }, [user, userDoc, loading, router]);
+  if (!isReady) {
+    return (
+      <div className="flex min-h-full items-center justify-center">
+        <p className="text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-full flex-col">
@@ -62,7 +59,7 @@ export default function Home() {
               Alpha
             </Badge>
           </div>
-          {!loading && !user && <SignInButton size="sm" variant="outline" />}
+          {!user && <SignInButton size="sm" variant="outline" />}
         </div>
       </header>
 
@@ -87,7 +84,11 @@ export default function Home() {
                     Loading…
                   </Button>
                 ) : user ? (
-                  <Button size="lg" className="rounded-full px-8" onClick={() => router.push("/dashboard")}>
+                  <Button
+                    size="lg"
+                    className="rounded-full px-8"
+                    onClick={() => router.push("/dashboard")}
+                  >
                     Go to dashboard
                   </Button>
                 ) : (
@@ -113,7 +114,7 @@ export default function Home() {
               What you&apos;ll be able to do
             </h2>
             <p className="text-muted-foreground">
-              Phase 1 is live — create your account and roll your first companion.
+              Phase 2 is live — create your account, roll your first companion, and start caring for them.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">

@@ -112,6 +112,8 @@ src/
   totalXp: number;            // lifetime XP earned
   levelCostMultiplier: number; // per-pet level cost (lower = faster)
   growthTier?: "normal" | "fast"; // fast = rare shiny/super sub-roll
+  careCooldowns?: Record<string, Timestamp>; // per-action cooldown timestamps
+  freeRenameUsed?: boolean;
   createdAt: Timestamp;
   lastCareAt: Timestamp;
   lastDecayAppliedAt: Timestamp;

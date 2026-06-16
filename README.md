@@ -79,7 +79,7 @@ Static export output is written to `out/` for Firebase Hosting. `npm start` is n
 - [x] Firebase config stubs (`firebase.json`, rules files)
 - [x] Documentation suite
 
-### Phase 1 — Account + pet (current)
+### Phase 1 — Account + pet (complete)
 
 - [x] Firebase SDK initialization
 - [x] Google Sign-In (`src/features/auth/`)
@@ -87,7 +87,15 @@ Static export output is written to `out/` for Firebase Hosting. `npm start` is n
 - [x] Server-side pet stat roll (`functions/src/createStarterPet.ts`)
 - [x] Pet dashboard with all 8 stats + level/XP (`src/features/dashboard/`)
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for Phases 2–7.
+### Phase 2 — Care loop (current)
+
+- [x] Care actions: feed, play, rest, heal with cooldowns (`src/features/care/`)
+- [x] Passive decay on dashboard load (`syncPetDecay` Cloud Function)
+- [x] Server-side care validation (`performCareAction` Cloud Function)
+- [x] Low-stat warnings on dashboard
+- [x] One free pet rename (`renamePet` Cloud Function)
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for Phases 3–7.
 
 ---
 

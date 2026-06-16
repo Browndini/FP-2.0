@@ -1,26 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/features/auth";
+import { useAuthRedirect } from "@/features/auth";
 import { OnboardingWizard } from "@/features/onboarding";
 
 export default function OnboardingPage() {
-  const { user, userDoc, loading } = useAuth();
-  const router = useRouter();
+  const { isReady } = useAuthRedirect("requireOnboarding");
 
-  useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.replace("/");
-      return;
-    }
-    if (userDoc?.onboardingComplete) {
-      router.replace("/dashboard");
-    }
-  }, [user, userDoc, loading, router]);
-
-  if (loading || !user || userDoc?.onboardingComplete) {
+  if (!isReady) {
     return (
       <div className="flex min-h-full items-center justify-center">
         <p className="text-muted-foreground">Loading…</p>

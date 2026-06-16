@@ -1,13 +1,4 @@
 {
-  "auth": {
-    "providers": {
-      "googleSignIn": {
-        "oAuthBrandDisplayName": "Future Pets",
-        "supportEmail": "dt.kylebrown@gmail.com",
-        "authorizedRedirectUris": ["http://localhost:3000"]
-      }
-    }
-  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"

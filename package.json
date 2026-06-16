@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "deploy:hosting": "npm run build && npx -y firebase-tools@latest deploy --only hosting",
-    "deploy:rules": "npx -y firebase-tools@latest deploy --only firestore:rules,storage"
+    "deploy:rules": "npx -y firebase-tools@latest deploy --only firestore:rules,storage",
+    "deploy:all": "npm run build && cd functions && npm run build && cd .. && npx -y firebase-tools@latest deploy --only hosting,firestore,functions,storage"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

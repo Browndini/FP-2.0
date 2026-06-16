@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";
@@ -27,13 +27,17 @@ type ProfileState =
   | { status: "private" }
   | { status: "loaded"; pet: PetDoc };
 
-export default function PublicPetProfile() {
-  const params = useParams<{ username: string; petId: string }>();
-  const { username, petId } = params;
+function PublicPetProfileContent() {
+  const searchParams = useSearchParams();
+  const username = searchParams.get("username") ?? "";
+  const petId = searchParams.get("petId") ?? "";
   const [state, setState] = useState<ProfileState>({ status: "loading" });
 
   useEffect(() => {
-    if (!username || !petId) return;
+    if (!username || !petId) {
+      setState({ status: "not-found" });
+      return;
+    }
 
     async function load() {
       try {
@@ -73,7 +77,9 @@ export default function PublicPetProfile() {
           <Link href="/" className="text-xl font-bold tracking-tight text-primary">
             Future Pets
           </Link>
-          <span className="text-sm text-muted-foreground">@{username}</span>
+          {username && (
+            <span className="text-sm text-muted-foreground">@{username}</span>
+          )}
         </div>
       </header>
 
@@ -84,7 +90,7 @@ export default function PublicPetProfile() {
           )}
 
           {state.status === "not-found" && (
-            <div className="text-center space-y-2">
+            <div className="space-y-2 text-center">
               <p className="text-lg font-semibold">Pet not found</p>
               <p className="text-sm text-muted-foreground">
                 This profile doesn&apos;t exist or the pet has been removed.
@@ -93,7 +99,7 @@ export default function PublicPetProfile() {
           )}
 
           {state.status === "private" && (
-            <div className="text-center space-y-2">
+            <div className="space-y-2 text-center">
               <p className="text-lg font-semibold">This pet is private</p>
               <p className="text-sm text-muted-foreground">
                 The owner has made this pet&apos;s profile private.
@@ -170,5 +176,19 @@ export default function PublicPetProfile() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PublicPetProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-full items-center justify-center">
+          <p className="text-muted-foreground">Loading…</p>
+        </div>
+      }
+    >
+      <PublicPetProfileContent />
+    </Suspense>
   );
 }

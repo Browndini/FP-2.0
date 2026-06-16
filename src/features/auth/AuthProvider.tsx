@@ -19,6 +19,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase/client";
@@ -27,6 +28,7 @@ import type { UserDoc } from "./types";
 interface AuthContextValue {
   user: User | null;
   userDoc: UserDoc | null;
+  /** True until the first auth state + user doc resolution completes. */
   loading: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -41,21 +43,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let userDocUnsub: (() => void) | undefined;
+
+    const authUnsub = onAuthStateChanged(auth, async (firebaseUser) => {
+      userDocUnsub?.();
+      userDocUnsub = undefined;
+      setLoading(true);
       setUser(firebaseUser);
 
-      if (firebaseUser) {
-        const ref = doc(db, "users", firebaseUser.uid);
+      if (!firebaseUser) {
+        setUserDoc(null);
+        setLoading(false);
+        return;
+      }
+
+      const ref = doc(db, "users", firebaseUser.uid);
+
+      try {
         const snap = await getDoc(ref);
 
-        if (snap.exists()) {
-          await updateDoc(ref, { lastLoginAt: serverTimestamp() });
-          setUserDoc(snap.data() as UserDoc);
-        } else {
-          const newDoc: Omit<UserDoc, "createdAt" | "lastLoginAt"> & {
-            createdAt: ReturnType<typeof serverTimestamp>;
-            lastLoginAt: ReturnType<typeof serverTimestamp>;
-          } = {
+        if (!snap.exists()) {
+          await setDoc(ref, {
             displayName: firebaseUser.displayName ?? "",
             email: firebaseUser.email ?? "",
             photoURL: firebaseUser.photoURL ?? undefined,
@@ -63,19 +71,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             onboardingComplete: false,
             createdAt: serverTimestamp(),
             lastLoginAt: serverTimestamp(),
-          };
-          await setDoc(ref, newDoc);
-          const created = await getDoc(ref);
-          setUserDoc(created.data() as UserDoc);
+          });
+        } else {
+          updateDoc(ref, { lastLoginAt: serverTimestamp() }).catch(() => {
+            // Non-blocking; don't fail auth if login timestamp update fails.
+          });
         }
-      } else {
-        setUserDoc(null);
-      }
 
-      setLoading(false);
+        userDocUnsub = onSnapshot(
+          ref,
+          (docSnap) => {
+            if (docSnap.exists()) {
+              setUserDoc(docSnap.data() as UserDoc);
+            } else {
+              setUserDoc(null);
+            }
+            setLoading(false);
+          },
+          () => {
+            setUserDoc(null);
+            setLoading(false);
+          }
+        );
+      } catch {
+        setUserDoc(null);
+        setLoading(false);
+      }
     });
 
-    return unsubscribe;
+    return () => {
+      authUnsub();
+      userDocUnsub?.();
+    };
   }, []);
 
   const signIn = useCallback(async () => {
