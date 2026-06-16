@@ -108,7 +108,10 @@ src/
     intelligence: number;
   };
   level: number;
-  xp: number;
+  xp: number;                 // progress toward next level
+  totalXp: number;            // lifetime XP earned
+  levelCostMultiplier: number; // per-pet level cost (lower = faster)
+  growthTier?: "normal" | "fast"; // fast = rare shiny/super sub-roll
   createdAt: Timestamp;
   lastCareAt: Timestamp;
   lastDecayAppliedAt: Timestamp;

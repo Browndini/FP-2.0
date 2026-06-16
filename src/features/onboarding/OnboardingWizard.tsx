@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { httpsCallable } from "firebase/functions";
+import { useAuth } from "@/features/auth";
 import { functions } from "@/lib/firebase/client";
 import { ONBOARDING_CHOICES, type StarterSpeciesId } from "@/lib/constants/game";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ const STEPS = ["Species", "Name", "Play style", "Element", "Personality"] as con
 
 export function OnboardingWizard() {
   const router = useRouter();
+  const { refreshUserDoc } = useAuth();
   const [step, setStep] = useState(0);
   const [speciesId, setSpeciesId] = useState<StarterSpeciesId | null>(null);
   const [petName, setPetName] = useState("");
@@ -62,9 +64,16 @@ export function OnboardingWizard() {
     try {
       const createPet = httpsCallable(functions, "createStarterPet");
       await createPet({ speciesId, petName: petName.trim(), playStyle, favoriteElement, personality });
-      router.replace("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      await refreshUserDoc();
+      router.replace("/dashboard?celebrate=1");
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === "object" && "code" in err
+          ? `${(err as { code: string }).code}: ${(err as { message?: string }).message ?? "Request failed"}`
+          : err instanceof Error
+          ? err.message
+          : "Something went wrong. Try again.";
+      setError(message);
       setCreating(false);
     }
   }

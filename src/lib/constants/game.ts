@@ -185,7 +185,63 @@ export const CARE_ACTIONS = {
   heal: { cooldownMinutes: 60, health: 25, creditsCost: 50 },
 } as const;
 
+export type CareActionId = keyof typeof CARE_ACTIONS;
+
+/** Health decay multiplier when hunger or happiness is at 0. TUNABLE. */
+export const ACCELERATED_HEALTH_DECAY_MULTIPLIER = 2;
+
 export const STAT_MIN = 0;
 export const STAT_MAX = 100;
 export const XP_PER_LEVEL_BASE = 100;
 export const XP_LEVEL_SCALING = 1.15;
+
+/** Per-pet level cost roll bands — TUNABLE. Lower multiplier = faster leveling. */
+export const LEVEL_COST_MULTIPLIER = {
+  normalMin: 0.92,
+  normalMax: 1.08,
+  shinySuperFastChance: 0.1,
+  fastMin: 0.7,
+  fastMax: 0.85,
+  shinySuperNormalMin: 0.95,
+  shinySuperNormalMax: 1.15,
+} as const;
+
+export const GROWTH_TIERS = ["normal", "fast"] as const;
+export type GrowthTier = (typeof GROWTH_TIERS)[number];
+
+export const SHOP_ITEMS = [
+  {
+    id: "fire-collar",
+    name: "Fire Collar",
+    description: "A glowing collar that crackles with embers.",
+    creditsPrice: 200,
+  },
+  {
+    id: "crystal-crown",
+    name: "Crystal Crown",
+    description: "A delicate crown of shimmering crystals.",
+    creditsPrice: 350,
+  },
+  {
+    id: "tide-cape",
+    name: "Tide Cape",
+    description: "A flowing cape that ripples like ocean waves.",
+    creditsPrice: 250,
+  },
+  {
+    id: "storm-badge",
+    name: "Storm Badge",
+    description: "A crackling badge that hums with electric energy.",
+    creditsPrice: 150,
+  },
+  {
+    id: "nature-wreath",
+    name: "Nature Wreath",
+    description: "A wreath of living leaves and tiny blooms.",
+    creditsPrice: 175,
+  },
+] as const;
+
+export type ShopItemId = (typeof SHOP_ITEMS)[number]["id"];
+
+export const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;

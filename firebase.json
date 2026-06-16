@@ -4,7 +4,7 @@
       "googleSignIn": {
         "oAuthBrandDisplayName": "Future Pets",
         "supportEmail": "dt.kylebrown@gmail.com",
-        "authorizedRedirectUris": ["localhost"]
+        "authorizedRedirectUris": ["http://localhost:3000"]
       }
     }
   },

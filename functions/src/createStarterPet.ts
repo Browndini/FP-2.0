@@ -9,6 +9,7 @@ import {
   STARTER_SPECIES,
   type RarityTier,
 } from "./constants";
+import { rollLevelCostMultiplier } from "./leveling";
 
 interface CreateStarterPetInput {
   speciesId: string;
@@ -36,7 +37,9 @@ function rollStat(range: readonly [number, number], bias: number, multiplier: nu
   return Math.round(Math.min(STAT_MAX, Math.max(STAT_MIN, result)));
 }
 
-export const createStarterPet = onCall<CreateStarterPetInput>(async (request) => {
+export const createStarterPet = onCall<CreateStarterPetInput>(
+  { region: "us-central1", cors: true },
+  async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Must be signed in.");
   }
@@ -68,6 +71,7 @@ export const createStarterPet = onCall<CreateStarterPetInput>(async (request) =>
 
   const rarity = rollRarity();
   const multiplier = RARITY_STAT_MULTIPLIERS[rarity];
+  const { levelCostMultiplier, growthTier } = rollLevelCostMultiplier(rarity);
 
   // Build stat bias from onboarding choices (play style + personality; element stored only)
   const biasMap: Record<string, number> = {};
@@ -95,6 +99,9 @@ export const createStarterPet = onCall<CreateStarterPetInput>(async (request) =>
       stats,
       level: 1,
       xp: 0,
+      totalXp: 0,
+      levelCostMultiplier,
+      growthTier,
       createdAt: now,
       lastCareAt: now,
       lastDecayAppliedAt: now,
@@ -111,5 +118,5 @@ export const createStarterPet = onCall<CreateStarterPetInput>(async (request) =>
     );
   });
 
-  return { petId: petRef.id, rarity };
+  return { petId: petRef.id, rarity, levelCostMultiplier, growthTier };
 });

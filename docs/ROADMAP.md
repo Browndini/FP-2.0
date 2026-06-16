@@ -2,7 +2,7 @@
 
 Phased build plan with acceptance criteria, likely files, Firebase changes, and AI prompt templates.
 
-**Current phase: 1**
+**Current phase: 3**
 
 ---
 
@@ -112,10 +112,10 @@ functions/src/createStarterPet.ts
 
 ### Acceptance criteria
 
-- [ ] Each care action updates stats and enforces cooldown
-- [ ] Decay applies correctly based on elapsed time
-- [ ] Heal deducts credits
-- [ ] Stats clamped to 0–100
+- [x] Each care action updates stats and enforces cooldown
+- [x] Decay applies correctly based on elapsed time
+- [x] Heal deducts credits
+- [x] Stats clamped to 0–100
 
 ### AI prompt template
 
@@ -144,10 +144,10 @@ functions/src/createStarterPet.ts
 
 ### Acceptance criteria
 
-- [ ] User can spend credits in shop
-- [ ] Cosmetics equip on pet (visual placeholder OK)
-- [ ] Public URL shows pet without auth
-- [ ] Usernames unique and validated
+- [x] User can spend credits in shop
+- [x] Cosmetics equip on pet (visual placeholder OK)
+- [x] Public URL shows pet without auth
+- [x] Usernames unique and validated
 
 ### AI prompt template
 
@@ -165,6 +165,8 @@ functions/src/createStarterPet.ts
 
 - Mini-game hub page
 - `reflex-dash` (speed) and `memory-match` (intelligence) — start with 2
+- game should be built using Phaserjs | Docs: (https://phaser.io/tools/phaser-docs)
+- if possible maybe have a live connection to the database to counteract frontend manipulation
 - Session tracking in `miniGameSessions`
 - Callable Function `claimMiniGameReward`
 - XP + credits granted on completion

@@ -1,5 +1,12 @@
 import type { Timestamp } from "firebase/firestore";
-import type { RarityTier, PetStat } from "@/lib/constants/game";
+import type {
+  RarityTier,
+  GrowthTier,
+  PetStat,
+  CareActionId,
+} from "@/lib/constants/game";
+
+export type CareCooldowns = Partial<Record<CareActionId, Timestamp>>;
 
 export interface PetDoc {
   speciesId: string;
@@ -9,6 +16,12 @@ export interface PetDoc {
   stats: Record<PetStat, number>;
   level: number;
   xp: number;
+  totalXp?: number;
+  levelCostMultiplier?: number;
+  growthTier?: GrowthTier;
+  careCooldowns?: CareCooldowns;
+  equippedCosmetic?: string | null;
+  freeRenameUsed?: boolean;
   createdAt: Timestamp;
   lastCareAt: Timestamp;
   lastDecayAppliedAt: Timestamp;
@@ -17,4 +30,13 @@ export interface PetDoc {
 
 export interface PetWithId extends PetDoc {
   id: string;
+}
+
+/** Defaults for pets created before leveling fields were added. */
+export function resolvePetLevelingFields(pet: PetWithId) {
+  return {
+    totalXp: pet.totalXp ?? pet.xp,
+    levelCostMultiplier: pet.levelCostMultiplier ?? 1,
+    growthTier: pet.growthTier ?? "normal",
+  } as const;
 }

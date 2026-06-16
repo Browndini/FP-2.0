@@ -3,8 +3,15 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { NEED_STATS, SKILL_STATS, STARTER_SPECIES } from "@/lib/constants/game";
+import { NEED_STATS, SKILL_STATS, SHOP_ITEMS, STARTER_SPECIES } from "@/lib/constants/game";
+import { xpToNextLevel } from "@/lib/leveling";
 import type { PetWithId } from "@/features/pets/types";
+import { resolvePetLevelingFields } from "@/features/pets/types";
+import {
+  CareActionPanel,
+  LowStatWarnings,
+  PetRenameButton,
+} from "@/features/care";
 import { StatBar } from "./StatBar";
 import { cn } from "@/lib/utils";
 
@@ -16,21 +23,23 @@ const RARITY_STYLES: Record<string, string> = {
   super: "bg-purple-100 text-purple-700",
 };
 
-function xpForNextLevel(level: number) {
-  return Math.round(100 * Math.pow(1.15, level - 1));
-}
-
 interface PetDashboardProps {
   pet: PetWithId;
+  credits: number;
+  onCreditsChange?: () => void;
 }
 
-export function PetDashboard({ pet }: PetDashboardProps) {
+export function PetDashboard({ pet, credits, onCreditsChange }: PetDashboardProps) {
   const species = STARTER_SPECIES.find((s) => s.id === pet.speciesId);
-  const nextLevelXp = xpForNextLevel(pet.level);
+  const { totalXp, levelCostMultiplier, growthTier } = resolvePetLevelingFields(pet);
+  const nextLevelXp = xpToNextLevel(pet.level, levelCostMultiplier);
+  const progressPct =
+    nextLevelXp > 0 ? Math.min(100, (pet.xp / nextLevelXp) * 100) : 0;
 
   return (
     <div className="space-y-6">
-      {/* Identity card */}
+      <LowStatWarnings stats={pet.stats} />
+
       <Card className="rounded-2xl">
         <CardContent className="flex flex-col items-center gap-4 pt-6 sm:flex-row sm:items-start">
           <div className="relative size-32 shrink-0">
@@ -48,12 +57,30 @@ export function PetDashboard({ pet }: PetDashboardProps) {
               <Badge className={cn("capitalize", RARITY_STYLES[pet.rarity])}>
                 {pet.rarity}
               </Badge>
+              {growthTier === "fast" && (
+                <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+                  Fast grower
+                </Badge>
+              )}
+              {pet.equippedCosmetic && (() => {
+                const cosmetic = SHOP_ITEMS.find((i) => i.id === pet.equippedCosmetic);
+                return cosmetic ? (
+                  <Badge className="bg-violet-100 text-violet-700 hover:bg-violet-100">
+                    {cosmetic.name}
+                  </Badge>
+                ) : null;
+              })()}
             </div>
             {species && (
               <p className="text-sm text-muted-foreground">
                 {species.name} · {species.element}
               </p>
             )}
+            <PetRenameButton
+              petId={pet.id}
+              currentName={pet.name}
+              freeRenameUsed={pet.freeRenameUsed}
+            />
             <div className="space-y-1">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium">Level {pet.level}</span>
@@ -64,16 +91,25 @@ export function PetDashboard({ pet }: PetDashboardProps) {
               <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: `${Math.min(100, (pet.xp / nextLevelXp) * 100)}%` }}
+                  style={{ width: `${progressPct}%` }}
                 />
               </div>
+              <p className="text-xs text-muted-foreground">
+                Lifetime: {totalXp.toLocaleString()} XP
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      <CareActionPanel
+        petId={pet.id}
+        careCooldowns={pet.careCooldowns}
+        credits={credits}
+        onCreditsChange={onCreditsChange}
+      />
+
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Need stats */}
         <Card className="rounded-2xl">
           <CardHeader>
             <CardTitle className="text-base">Needs</CardTitle>
@@ -85,7 +121,6 @@ export function PetDashboard({ pet }: PetDashboardProps) {
           </CardContent>
         </Card>
 
-        {/* Skill stats */}
         <Card className="rounded-2xl">
           <CardHeader>
             <CardTitle className="text-base">Skills</CardTitle>

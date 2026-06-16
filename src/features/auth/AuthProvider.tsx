@@ -30,6 +30,7 @@ interface AuthContextValue {
   loading: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUserDoc: () => Promise<UserDoc | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -86,8 +87,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await firebaseSignOut(auth);
   }, []);
 
+  const refreshUserDoc = useCallback(async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) return null;
+
+    const ref = doc(db, "users", firebaseUser.uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+
+    const data = snap.data() as UserDoc;
+    setUserDoc(data);
+    return data;
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, userDoc, loading, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user, userDoc, loading, signIn, signOut, refreshUserDoc }}
+    >
       {children}
     </AuthContext.Provider>
   );

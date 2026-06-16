@@ -105,10 +105,29 @@ When hunger or happiness hits 0, health decay accelerates. When energy hits 0, m
 
 | Field | Behavior |
 |-------|----------|
-| Level | Increases when XP threshold met |
-| XP | From mini-games, daily care streaks, achievements |
+| Level | Increases when current-level XP threshold is met |
+| XP | Progress toward next level (displayed on dashboard bar) |
+| totalXp | Lifetime XP earned (always increases; same earn rate for all pets) |
+| levelCostMultiplier | Rolled at creation; scales XP required per level (lower = faster leveling) |
+| growthTier | `"fast"` if shiny/super hit the fast-growth sub-roll; otherwise `"normal"` |
 
-XP to next level: `XP_PER_LEVEL_BASE * XP_LEVEL_SCALING ^ (level - 1)` — **TUNABLE**.
+All pets earn the **same base XP** from activities. Per-pet variance is **level cost only** — not earn rate.
+
+**Base XP to next level:** `XP_PER_LEVEL_BASE * XP_LEVEL_SCALING ^ (level - 1)` — **TUNABLE**.
+
+**Per-pet threshold:** `round(baseXpForLevel(level) * levelCostMultiplier)`
+
+#### Level cost roll at creation (server-side)
+
+| Pet type | Roll |
+|----------|------|
+| Common / uncommon / rare | `levelCostMultiplier` in **0.92 – 1.08** (TUNABLE) |
+| Shiny / super | **10%** chance (TUNABLE) of fast growth: **0.70 – 0.85** + `growthTier: "fast"` |
+| Shiny / super (otherwise) | **0.95 – 1.15** — normal pacing |
+
+Common/uncommon/rare pets **cannot** roll fast growth. Fast growth is a rare trait exclusive to shiny/super pets.
+
+Constants: `LEVEL_COST_MULTIPLIER` in [`src/lib/constants/game.ts`](../src/lib/constants/game.ts). Logic: [`functions/src/leveling.ts`](../functions/src/leveling.ts).
 
 ### Skill stats (no passive decay)
 
