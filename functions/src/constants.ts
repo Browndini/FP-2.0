@@ -198,6 +198,42 @@ export const BREEDING_EGG_ITEM_ID = "breeding-egg";
 
 export const SKILL_STATS = ["strength", "speed", "defense", "intelligence"] as const;
 
+/** Premium IAP cosmetics — grant inventory only, never stats. Stripe Price IDs via env at deploy. */
+export const IAP_ITEMS = [
+  {
+    id: "iap-nebula-cape",
+    name: "Nebula Cape",
+    description: "Premium starlit cape woven from distant constellations.",
+    displayPriceUsd: 2.99,
+    stripePriceEnvKey: "STRIPE_PRICE_NEBULA_CAPE",
+    cosmeticOnly: true as const,
+  },
+  {
+    id: "iap-aurora-halo",
+    name: "Aurora Halo",
+    description: "A shimmering ring of northern lights — cosmetic only.",
+    displayPriceUsd: 1.99,
+    stripePriceEnvKey: "STRIPE_PRICE_AURORA_HALO",
+    cosmeticOnly: true as const,
+  },
+  {
+    id: "iap-celestial-wings",
+    name: "Celestial Wings",
+    description: "Ethereal wings that glow at dusk — cosmetic only.",
+    displayPriceUsd: 4.99,
+    stripePriceEnvKey: "STRIPE_PRICE_CELESTIAL_WINGS",
+    cosmeticOnly: true as const,
+  },
+] as const;
+
+export type IapItemId = (typeof IAP_ITEMS)[number]["id"];
+
+export function getIapStripePriceId(itemId: string): string | null {
+  const item = IAP_ITEMS.find((i) => i.id === itemId);
+  if (!item) return null;
+  return process.env[item.stripePriceEnvKey] ?? null;
+}
+
 export const STARTER_SPECIES = [
   {
     id: "emberfox",

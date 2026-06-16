@@ -249,7 +249,48 @@ Two players match compatible pets to produce an **egg**. Egg hatches after a rea
 2. Both players pay credits fee (TUNABLE)
 3. Egg appears in both inventories (linked egg ID)
 4. Incubation timer (24–72 hr — TUNABLE)
-5. Hatch Cloud Function creates `users/{uid}/pets/{petId}` for each owner (one offspring each, or shared — **TBD: one egg → one owner**)
+5. Hatch Cloud Function creates `users/{uid}/pets/{petId}` for **each parent** (one offspring per parent per pair).
+
+---
+
+## Pet acquisition (Phase 8+)
+
+Players start with one onboarding starter. Additional pets (up to **5 per account**) come from credits, social play, and engagement — never real-money purchases.
+
+| Source | How | Notes |
+|--------|-----|-------|
+| Onboarding | `createStarterPet` | One per account; player picks species + onboarding choices |
+| Breeding | `hatchEgg` | Cooperative; inherited stats + rarity roll |
+| Trade | `executeTrade` | Swap-only between players |
+| Credit adoption | `adoptPet` | Shop; adopt unowned starter species (~3,000 credits) |
+| Mystery Egg | Shop + `hatchMysteryEgg` | Random species + rarity (~1,500 credits) |
+| Mini-game drop | `claimMiniGameReward` | Rare pet capsule on exceptional scores; pity system |
+| Daily login | `claimDailyLogin` | Streak rewards include egg fragments |
+| Achievements | `checkAchievements` | Milestone rewards (credits, fragments) |
+
+**Collection UI:** `/collection` page with Pets roster and Items inventory. Dashboard and games target the **active pet** (`activePetId` on user doc).
+
+Full specification: [PET_ACQUISITION_AND_COLLECTION.md](PET_ACQUISITION_AND_COLLECTION.md)
+
+### Maximum pets per account
+
+**Resolved:** **5 pets** at launch (`MAX_PETS` in `game.ts`, formerly `BREEDING_MAX_PETS`). Enforced on hatch, adoption, drops, and trade receive.
+
+### Daily login reward table
+
+**Resolved (draft — TUNABLE in `DAILY_LOGIN_REWARDS`):**
+
+| Streak day | Reward |
+|------------|--------|
+| 1 | 25 credits |
+| 2 | 50 credits |
+| 3 | 1 egg fragment |
+| 4 | 75 credits |
+| 5 | 1 egg fragment |
+| 6 | 100 credits |
+| 7 | 1 mystery egg (or 2 fragments if at pet cap) |
+
+5 egg fragments craft into 1 mystery egg via `craftMysteryEgg`. Streak resets if a day is missed.
 
 ---
 
@@ -267,8 +308,10 @@ Track these in roadmap issues as they are resolved:
 
 - [ ] Exact onboarding copy and UX flow order
 - [ ] PvE combat format (auto-battle vs interactive)
-- [ ] One offspring per breeding pair vs one per parent
-- [ ] Maximum pets per account (suggest 5 at launch)
-- [ ] Daily login reward table
+- [x] One offspring per breeding pair vs one per parent — **one per parent per pair**
+- [x] Maximum pets per account — **5 at launch** (`MAX_PETS`)
+- [x] Daily login reward table — see [Pet acquisition](#pet-acquisition-phase-8) section
+- [ ] Mystery egg instant hatch vs timed incubation (v1: instant)
+- [ ] Adoption duplicate policy (recommend: one per species)
 
 When resolved, update this file and `game.ts`.

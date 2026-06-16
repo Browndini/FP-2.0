@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { httpsCallable } from "firebase/functions";
 import { useAuth } from "@/features/auth";
 import { functions } from "@/lib/firebase/client";
+import { trackEvent } from "@/lib/analytics";
 import { ONBOARDING_CHOICES, type StarterSpeciesId } from "@/lib/constants/game";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,7 +64,12 @@ export function OnboardingWizard() {
     setError(null);
     try {
       const createPet = httpsCallable(functions, "createStarterPet");
-      await createPet({ speciesId, petName: petName.trim(), playStyle, favoriteElement, personality });
+      const result = await createPet({ speciesId, petName: petName.trim(), playStyle, favoriteElement, personality });
+      const data = result.data as { petId?: string; rarity?: string };
+      trackEvent("pet_created", {
+        species_id: speciesId,
+        rarity: data.rarity ?? "unknown",
+      });
       await refreshUserDoc();
       router.replace("/dashboard?celebrate=1");
     } catch (err: unknown) {

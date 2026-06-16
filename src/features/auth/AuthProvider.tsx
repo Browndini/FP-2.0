@@ -22,6 +22,7 @@ import {
   onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
+import { trackEvent } from "@/lib/analytics";
 import { auth, db } from "@/lib/firebase/client";
 import type { UserDoc } from "./types";
 
@@ -72,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             createdAt: serverTimestamp(),
             lastLoginAt: serverTimestamp(),
           });
+          trackEvent("sign_up", { method: "google" });
         } else {
           updateDoc(ref, { lastLoginAt: serverTimestamp() }).catch(() => {
             // Non-blocking; don't fail auth if login timestamp update fails.

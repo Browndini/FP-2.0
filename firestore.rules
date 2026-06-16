@@ -60,6 +60,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // IAP fulfillments: server-only writes
+    match /iapFulfillments/{sessionId} {
+      allow read, write: if false;
+    }
+
     // Deny everything else
     match /{document=**} {
       allow read, write: if false;

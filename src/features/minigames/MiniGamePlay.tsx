@@ -5,6 +5,7 @@ import Link from "next/link";
 import { httpsCallable } from "firebase/functions";
 import { MINI_GAMES, type MiniGameId } from "@/lib/constants/game";
 import { functions } from "@/lib/firebase/client";
+import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/features/auth";
 import { usePet } from "@/features/pets";
 import { AppHeader } from "@/components/AppHeader";
@@ -74,6 +75,10 @@ export function MiniGamePlay({ gameId }: MiniGamePlayProps) {
 
         setLastScore(result.score);
         setClaimResult(response.data);
+        trackEvent("mini_game_completed", {
+          game_id: gameId,
+          score: result.score,
+        });
         await refreshUserDoc();
         setPhase("done");
       } catch (err: unknown) {

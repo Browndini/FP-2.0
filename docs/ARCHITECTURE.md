@@ -44,6 +44,7 @@ src/
 │   ├── auth/               # Sign-in, auth context
 │   ├── onboarding/         # Species + choice flow
 │   ├── pets/               # Pet types, hooks, components
+│   ├── collection/         # Pet roster + item inventory (Phase 8+)
 │   └── dashboard/          # Pet dashboard UI
 └── lib/
     ├── constants/game.ts   # Balance constants
@@ -54,7 +55,8 @@ src/
 
 ### State management
 
-- **Phase 1–2:** React Context for auth + active pet
+- **Phase 1–7:** React Context for auth; `usePet()` returns oldest pet by default
+- **Phase 8+:** `activePetId` on user doc; `usePet()` resolves active pet; Collection page for roster
 - **Phase 3+:** Consider Zustand if cross-feature state becomes unwieldy
 - Firestore real-time listeners for pet stats on dashboard
 
@@ -64,7 +66,9 @@ src/
 |-----------|-------|
 | Google Sign-In | Client (Firebase Auth SDK) |
 | Read own pet data | Client (Firestore SDK + rules) |
-| Create pet / roll stats | **Cloud Function** (never client) |
+| Create pet / roll stats | **Cloud Function** via `grantPet()` (never client) |
+| Set active pet | Client write to `users/{uid}.activePetId` |
+| Adopt / mystery egg / capsule hatch | **Cloud Function** |
 | Trade settlement | **Cloud Function** |
 | Breeding / hatch | **Cloud Function** |
 | Mini-game reward claim | **Cloud Function** validates score |
@@ -84,6 +88,10 @@ src/
   photoURL?: string;
   credits: number;
   onboardingComplete: boolean;
+  activePetId?: string;       // Phase 8 — dashboard/games target this pet
+  petCapsulePityCounter?: number;
+  lastDailyLoginClaimAt?: Timestamp;
+  dailyLoginStreak?: number;
   createdAt: Timestamp;
   lastLoginAt: Timestamp;
 }
@@ -96,6 +104,7 @@ src/
   speciesId: string;          // e.g. "emberfox"
   name: string;
   rarity: "common" | "uncommon" | "rare" | "shiny" | "super";
+  acquiredVia?: "starter" | "breeding" | "adoption" | "mystery_egg" | "drop" | "trade";
   imageUrl: string;           // Storage URL or placeholder path
   stats: {
     hunger: number;
@@ -137,15 +146,51 @@ Seeded from `STARTER_SPECIES` in `game.ts` + future species. Read-only for clien
 }
 ```
 
-### `users/{uid}/inventory/{itemId}`
+### `users/{uid}/inventory/{docId}`
+
+Cosmetic (standard):
 
 ```typescript
 {
   itemId: string;
   quantity: number;
   acquiredAt: Timestamp;
+  source?: "iap";
 }
 ```
+
+Egg / capsule (Phase 8+):
+
+```typescript
+{
+  itemId: "breeding-egg" | "mystery-egg" | "pet-capsule";
+  quantity: number;           // typically 1 for eggs/capsules
+  acquiredAt: Timestamp;
+  hatchAt?: Timestamp;
+  breedingPairId?: string;    // breeding-egg only
+}
+```
+
+Material (Phase 8+):
+
+```typescript
+{
+  itemId: "egg-fragment";
+  quantity: number;
+  acquiredAt: Timestamp;
+}
+```
+
+### `users/{uid}/achievements/{achievementId}` (Phase 8+)
+
+```typescript
+{
+  unlockedAt: Timestamp;
+  rewardClaimed: boolean;
+}
+```
+
+Client read-only; server writes on unlock.
 
 ### `trades/{tradeId}` (Phase 5)
 
@@ -220,11 +265,12 @@ usernames/{name}: read if true; create if auth + unique
 
 These collections/functions must **deny client writes**:
 
-- Pet creation rolls (use Callable Function `createStarterPet`)
+- Pet creation rolls (use Callable Function `grantPet()` — `createStarterPet`, `adoptPet`, `hatchEgg`, `hatchMysteryEgg`, `hatchPetCapsule`)
 - Trade status transitions
 - Breeding pair creation and hatch
 - Mini-game reward claims
 - Credits balance adjustments (except validated shop purchases via Function)
+- Achievement unlocks and daily login claims
 
 ---
 
@@ -249,13 +295,33 @@ Until Storage is wired, use `public/pets/placeholders/` for static assets.
 
 | Function | Trigger | Purpose |
 |----------|---------|---------|
-| `createStarterPet` | Callable | Roll stats, write pet doc |
+| `grantPet` | Internal helper | Shared pet creation (stats, rarity, cap check) |
+| `createStarterPet` | Callable | Onboarding starter via `grantPet()` |
+| `adoptPet` | Callable | Credit adoption from shop (Phase 8) |
+| `hatchMysteryEgg` | Callable | Consume mystery egg inventory item (Phase 8) |
+| `hatchPetCapsule` | Callable | Consume mini-game drop capsule (Phase 8) |
+| `craftMysteryEgg` | Callable | 5 egg fragments → 1 mystery egg (Phase 8) |
+| `claimDailyLogin` | Callable | Daily streak reward (Phase 8) |
+| `checkAchievements` | Callable | Milestone evaluation (Phase 8) |
 | `applyStatDecay` | Scheduled (hourly) | Batch decay for inactive pets |
-| `claimMiniGameReward` | Callable | Validate session, grant XP/credits |
+| `claimMiniGameReward` | Callable | Validate session, grant XP/credits, optional pet capsule |
 | `executeTrade` | Callable | Escrow + swap |
-| `hatchEgg` | Scheduled / Callable | Create offspring pet |
+| `hatchEgg` | Callable | Breeding offspring via `grantPet()` |
 
 Requires Firebase Blaze plan (billing enabled).
+
+### `grantPet()` pattern (Phase 8+)
+
+All pet creation paths delegate to a shared transaction helper:
+
+```typescript
+grantPet(tx, uid, {
+  speciesId, name, acquiredVia,
+  rarity?, stats?, rollOptions?, bredFromPairId?
+}) → { petId, rarity }
+```
+
+Callers must enforce `MAX_PETS` (5) before calling. See [PET_ACQUISITION_AND_COLLECTION.md](PET_ACQUISITION_AND_COLLECTION.md).
 
 ---
 
@@ -304,5 +370,6 @@ Phase 2: client applies on dashboard load. Phase 3+: scheduled Cloud Function fo
 ## Related documents
 
 - [GAME_DESIGN.md](GAME_DESIGN.md) — mechanics and balance
+- [PET_ACQUISITION_AND_COLLECTION.md](PET_ACQUISITION_AND_COLLECTION.md) — multi-pet acquisition and collection UI
 - [FIREBASE_SETUP.md](FIREBASE_SETUP.md) — project provisioning
 - [ROADMAP.md](ROADMAP.md) — implementation phases

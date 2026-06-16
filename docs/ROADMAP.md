@@ -2,7 +2,7 @@
 
 Phased build plan with acceptance criteria, likely files, Firebase changes, and AI prompt templates.
 
-**Current phase: 6**
+**Current phase: 8 (next)**
 
 ---
 
@@ -240,25 +240,165 @@ functions/src/createStarterPet.ts
 
 ### Deliverables
 
-- Firebase App Hosting production deploy
-- Cosmetic IAP integration (Stripe or platform-native — TBD)
-- Analytics events (sign-up, pet created, mini-game played, purchase)
-- Error monitoring
-- Performance pass on dashboard and games
-- Shiny/super visual treatments
+- [x] Cosmetic IAP integration (Stripe Checkout + webhook)
+- [x] Analytics events (sign-up, pet created, mini-game played, purchase)
+- [x] Error monitoring (ErrorBoundary + `app_error` analytics)
+- [x] Performance pass on dashboard and games (memoized StatBar, hosting cache headers)
+- [x] Shiny/super visual treatments
 
 ### Acceptance criteria
 
-- [ ] Production URL live on Firebase
-- [ ] IAP purchases grant cosmetic items only
-- [ ] Core flows monitored with analytics
-- [ ] No pay-to-win paths in shop or IAP
+- [x] IAP purchases grant cosmetic items only
+- [x] Core flows monitored with analytics
+- [x] No pay-to-win paths in shop or IAP
 
 ### AI prompt template
 
-> Implement Phase 7.1: Configure Firebase App Hosting deploy for Next.js, add production env setup docs, and deploy staging environment.
-
 > Implement Phase 7.2: Add cosmetic IAP flow (document product IDs), analytics events for key funnel steps, and shiny/super visual badges on pet dashboard.
+
+---
+
+## Phase 8 — Collection & acquisition
+
+**Goal:** Multi-pet roster, unified collection UI, and credit/gameplay pet acquisition (no real-money pets).
+
+Full design: [PET_ACQUISITION_AND_COLLECTION.md](PET_ACQUISITION_AND_COLLECTION.md)
+
+### Sub-phases
+
+#### 8.1 — Active pet + Collection UI
+
+**Deliverables:**
+
+- `activePetId` on user doc; pet switcher on dashboard
+- `/collection` page with Pets tab (roster grid, set active, empty-slot CTAs)
+- AppHeader nav: rename "My pet" → "Dashboard"; add "Collection"
+- Refactor `usePet()` to resolve active pet (fallback: oldest by `createdAt`)
+
+**Likely files:**
+
+```
+src/features/auth/types.ts
+src/features/pets/usePet.ts
+src/features/pets/usePets.ts
+src/features/collection/CollectionPage.tsx
+src/app/collection/page.tsx
+src/components/AppHeader.tsx
+```
+
+#### 8.2 — `grantPet` refactor + trade fixes
+
+**Deliverables:**
+
+- Shared `grantPet()` helper; refactor `createStarterPet` and `hatchEgg`
+- Rename `BREEDING_MAX_PETS` → `MAX_PETS` in `game.ts` and `functions/src/constants.ts`
+- `acquiredVia` field on new pet docs
+- Enforce `MAX_PETS` on trade receive; remove single-pet swap guard
+- Pet picker in trade UI for multi-pet accounts
+
+**Likely files:**
+
+```
+functions/src/grantPet.ts
+functions/src/createStarterPet.ts
+functions/src/hatchEgg.ts
+functions/src/executeTrade.ts
+src/features/trading/CreateTradeForm.tsx
+```
+
+#### 8.3 — Credit adoption + Mystery Egg
+
+**Deliverables:**
+
+- `ADOPTION_OFFERS` and `MYSTERY_EGG_*` constants in `game.ts`
+- Shop tabs: Adopt, Eggs (plus existing Cosmetics, Premium IAP)
+- Callables: `adoptPet`, `hatchMysteryEgg`
+- `purchaseItem` supports `mystery-egg` SKU
+- Collection Items tab: eggs section with hatch flow
+
+**Likely files:**
+
+```
+src/lib/constants/game.ts
+functions/src/constants.ts
+functions/src/adoptPet.ts
+functions/src/hatchMysteryEgg.ts
+functions/src/purchaseItem.ts
+src/features/shop/ShopPage.tsx
+src/features/collection/CollectionPage.tsx
+```
+
+#### 8.4 — Mini-game pet drops
+
+**Deliverables:**
+
+- Pet capsule drop table in `computeMiniGameRewards` / `claimMiniGameReward`
+- Pity counter on user doc; daily drop cap
+- Callable `hatchPetCapsule`
+- Collection Items tab: capsules section
+- Analytics: `pet_capsule_dropped`, `pet_capsule_hatched`
+
+**Likely files:**
+
+```
+src/lib/constants/game.ts
+functions/src/claimMiniGameReward.ts
+functions/src/hatchPetCapsule.ts
+src/features/collection/CollectionPage.tsx
+```
+
+#### 8.5 — Daily login + achievements
+
+**Deliverables:**
+
+- `DAILY_LOGIN_REWARDS` table; callable `claimDailyLogin`
+- `users/{uid}/achievements/{id}` subcollection; callable `checkAchievements`
+- Egg fragment crafting: `craftMysteryEgg` (5 fragments → 1 mystery egg)
+- Collection Items tab: materials and vouchers sections
+
+**Likely files:**
+
+```
+src/lib/constants/game.ts
+functions/src/claimDailyLogin.ts
+functions/src/checkAchievements.ts
+functions/src/craftMysteryEgg.ts
+src/features/collection/CollectionPage.tsx
+firestore.rules
+```
+
+### Firebase changes
+
+- User doc: `activePetId`, `petCapsulePityCounter`, `lastDailyLoginClaimAt`, `dailyLoginStreak`
+- Pet doc: `acquiredVia`
+- Inventory: extended shapes for eggs, capsules, fragments
+- New subcollection: `users/{uid}/achievements`
+- New callables listed above; export from `functions/src/index.ts`
+
+### Acceptance criteria
+
+- [ ] User with multiple pets can switch active pet; dashboard/games target active pet
+- [ ] `/collection` shows pet roster (up to 5) and grouped item inventory
+- [ ] User can adopt an unowned starter species for credits via shop
+- [ ] User can buy and hatch a Mystery Egg for a server-rolled pet
+- [ ] Mini-game exceptional sessions can drop a pet capsule (rate-limited, pity system)
+- [ ] Daily login streak grants credits and egg fragments; 5 fragments craft a mystery egg
+- [ ] Achievements unlock and grant rewards server-side
+- [ ] All new pets created only via `grantPet()`; `MAX_PETS` enforced on hatch, adoption, drops, and trades
+- [ ] No real-money pet purchases; IAP remains cosmetic-only
+- [ ] Analytics events fire for each acquisition source
+
+### AI prompt template
+
+> Implement Phase 8.1 for Future Pets: Add `activePetId` to user doc, refactor `usePet()` to resolve active pet, add pet switcher on dashboard, create `/collection` page with Pets tab (roster grid, set active, cap indicator), and update AppHeader nav per PET_ACQUISITION_AND_COLLECTION.md.
+
+> Implement Phase 8.2 for Future Pets: Extract `grantPet()` helper, refactor `createStarterPet` and `hatchEgg`, add `acquiredVia` on pet docs, enforce `MAX_PETS` on trades, and add pet picker to trade UI.
+
+> Implement Phase 8.3 for Future Pets: Add credit adoption and Mystery Egg shop tabs, `adoptPet` and `hatchMysteryEgg` callables, and Collection Items egg hatch flow per PET_ACQUISITION_AND_COLLECTION.md.
+
+> Implement Phase 8.4 for Future Pets: Add pet capsule drop logic to `claimMiniGameReward` with pity counter and daily cap, `hatchPetCapsule` callable, and Collection capsules UI.
+
+> Implement Phase 8.5 for Future Pets: Add daily login streak rewards, achievement milestones, egg fragment crafting, and Collection materials section per PET_ACQUISITION_AND_COLLECTION.md.
 
 ---
 
@@ -274,6 +414,7 @@ flowchart LR
   P4 --> P6[Phase 6 Breeding]
   P5 --> P6
   P6 --> P7[Phase 7 Polish]
+  P7 --> P8[Phase 8 Collection]
 ```
 
 ---

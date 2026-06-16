@@ -383,3 +383,38 @@ export interface BreedingPairDoc {
   hatchedByA?: boolean;
   hatchedByB?: boolean;
 }
+
+/** Premium IAP cosmetics — real-money only, no stat effects. Document Stripe Price IDs in FIREBASE_SETUP.md */
+export const IAP_ITEMS = [
+  {
+    id: "iap-nebula-cape",
+    name: "Nebula Cape",
+    description: "Premium starlit cape woven from distant constellations.",
+    displayPriceUsd: 2.99,
+    cosmeticOnly: true as const,
+  },
+  {
+    id: "iap-aurora-halo",
+    name: "Aurora Halo",
+    description: "A shimmering ring of northern lights — cosmetic only.",
+    displayPriceUsd: 1.99,
+    cosmeticOnly: true as const,
+  },
+  {
+    id: "iap-celestial-wings",
+    name: "Celestial Wings",
+    description: "Ethereal wings that glow at dusk — cosmetic only.",
+    displayPriceUsd: 4.99,
+    cosmeticOnly: true as const,
+  },
+] as const;
+
+export type IapItemId = (typeof IAP_ITEMS)[number]["id"];
+
+export function findCosmeticItem(itemId: string) {
+  return (
+    SHOP_ITEMS.find((i) => i.id === itemId) ??
+    IAP_ITEMS.find((i) => i.id === itemId) ??
+    null
+  );
+}

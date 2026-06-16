@@ -22,6 +22,12 @@ export const purchaseItem = onCall<PurchaseItemInput>(
     if (!item) {
       throw new HttpsError("not-found", "Item not found.");
     }
+    if (itemId.startsWith("iap-")) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Premium items are available via IAP only."
+      );
+    }
 
     const db = admin.firestore();
     const userRef = db.doc(`users/${uid}`);

@@ -12,6 +12,7 @@ Before implementing any feature:
 2. [ROADMAP.md](ROADMAP.md) — find the current phase and acceptance criteria
 3. [ARCHITECTURE.md](ARCHITECTURE.md) — Firestore schema, security, client vs server split
 4. [GAME_DESIGN.md](GAME_DESIGN.md) — mechanics, stats, economy rules
+5. [PET_ACQUISITION_AND_COLLECTION.md](PET_ACQUISITION_AND_COLLECTION.md) — Phase 8 multi-pet acquisition and collection UI
 
 For Firebase provisioning tasks, also read [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
@@ -120,16 +121,18 @@ Use `"use client"` in components that call Firebase Auth/Firestore.
 
 ### Pet creation
 
-- Read species from `STARTER_SPECIES`
+- Read species from `STARTER_SPECIES` (or adoption/mystery egg catalogs in Phase 8+)
 - Roll rarity using `RARITY_WEIGHTS` (server-side)
-- Apply `RARITY_STAT_MULTIPLIERS` and `ONBOARDING_STAT_BIAS`
-- Write result to `users/{uid}/pets/{petId}`
+- Apply `RARITY_STAT_MULTIPLIERS` and `ONBOARDING_STAT_BIAS` (starter only)
+- Write result via `grantPet()` helper to `users/{uid}/pets/{petId}` (Phase 8+)
+- Enforce `MAX_PETS` (5) on every acquisition path
 
 ### Economy
 
 - Credits field on user doc
 - Deduct credits in Cloud Function or Firestore transaction — not client-only
 - No real-money IAP until Phase 7
+- No real-money **pet** purchases ever — pets via credits, breeding, trades, gameplay (Phase 8+)
 
 ---
 
@@ -143,6 +146,7 @@ Use `"use client"` in components that call Firebase Auth/Firestore.
 | 3 | Manual: shop purchase, public profile load |
 | 4 | Manual: mini-game + reward claim |
 | 5+ | Manual + consider Firestore rules unit tests |
+| 8 | Manual: pet switcher, collection page, adoption, mystery egg hatch, drop pity |
 
 Add automated tests when complexity warrants — do not add trivial tests.
 
@@ -180,6 +184,58 @@ Implement Phase 2 for Future Pets:
 - Persist stat updates to Firestore
 ```
 
+### Phase 8 collection (8.1)
+
+```
+Implement Phase 8.1 for Future Pets:
+- Add activePetId to user doc; refactor usePet() to resolve active pet (fallback: oldest)
+- Pet switcher on dashboard header
+- /collection page with Pets tab: roster grid, set active, cap indicator, empty-slot CTAs
+- AppHeader: rename "My pet" to "Dashboard"; add "Collection" nav item
+- Follow docs/PET_ACQUISITION_AND_COLLECTION.md
+```
+
+### Phase 8 grantPet + trades (8.2)
+
+```
+Implement Phase 8.2 for Future Pets:
+- Extract grantPet() helper in functions/src/grantPet.ts
+- Refactor createStarterPet and hatchEgg to use grantPet()
+- Add acquiredVia on pet docs; rename BREEDING_MAX_PETS to MAX_PETS
+- Enforce MAX_PETS on trade receive; remove single-pet swap guard
+- Add pet picker to trade UI for multi-pet accounts
+```
+
+### Phase 8 shop adoption (8.3)
+
+```
+Implement Phase 8.3 for Future Pets:
+- Add ADOPTION_OFFERS and MYSTERY_EGG constants to game.ts
+- Shop tabs: Adopt, Eggs (keep Cosmetics and Premium IAP)
+- Callables: adoptPet, hatchMysteryEgg; extend purchaseItem for mystery-egg
+- Collection Items tab: eggs section with hatch flow
+```
+
+### Phase 8 mini-game drops (8.4)
+
+```
+Implement Phase 8.4 for Future Pets:
+- Pet capsule drop table in claimMiniGameReward (rate, pity, daily cap)
+- petCapsulePityCounter on user doc
+- Callable hatchPetCapsule; Collection capsules UI
+- Analytics: pet_capsule_dropped, pet_capsule_hatched
+```
+
+### Phase 8 daily login + achievements (8.5)
+
+```
+Implement Phase 8.5 for Future Pets:
+- DAILY_LOGIN_REWARDS table and claimDailyLogin callable
+- users/{uid}/achievements subcollection and checkAchievements callable
+- craftMysteryEgg callable (5 egg-fragment → 1 mystery-egg)
+- Collection Items tab: materials and fragments sections
+```
+
 ---
 
 ## Files you should NOT modify without reason
@@ -214,4 +270,5 @@ Use concise, purpose-driven messages:
 - [ROADMAP.md](ROADMAP.md)
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [GAME_DESIGN.md](GAME_DESIGN.md)
+- [PET_ACQUISITION_AND_COLLECTION.md](PET_ACQUISITION_AND_COLLECTION.md)
 - [FIREBASE_SETUP.md](FIREBASE_SETUP.md)

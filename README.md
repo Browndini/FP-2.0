@@ -121,7 +121,15 @@ Static export output is written to `out/` for Firebase Hosting. `npm start` is n
 - [x] `initiateBreeding`, `respondBreeding`, `cancelBreeding`, `hatchEgg` Cloud Functions
 - [x] Inheritance + shiny parent bonus; per-pet breeding cooldown
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for Phase 7.
+### Phase 7 — Polish + IAP (complete)
+
+- [x] Firebase Analytics for sign-up, pet created, mini-games, shop, and IAP
+- [x] Stripe IAP for premium cosmetics (`createStripeCheckout`, `verifyIapPurchase`, `stripeWebhook`)
+- [x] Error boundary + global error tracking via analytics
+- [x] Shiny/super visual treatments on pet dashboard; static asset cache headers
+- [x] Cosmetic-only shop and IAP — no pay-to-win paths
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for maintenance and future work.
 
 ---
 

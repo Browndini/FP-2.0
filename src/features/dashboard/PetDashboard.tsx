@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShopLinkButton } from "@/components/AppHeader";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { NEED_STATS, SKILL_STATS, SHOP_ITEMS, STARTER_SPECIES, MINI_GAMES } from "@/lib/constants/game";
+import { NEED_STATS, SKILL_STATS, SHOP_ITEMS, STARTER_SPECIES, MINI_GAMES, findCosmeticItem } from "@/lib/constants/game";
 import { xpToNextLevel } from "@/lib/leveling";
 import type { PetWithId } from "@/features/pets/types";
 import { resolvePetLevelingFields } from "@/features/pets/types";
@@ -22,8 +22,13 @@ const RARITY_STYLES: Record<string, string> = {
   common: "bg-muted text-muted-foreground",
   uncommon: "bg-green-100 text-green-700",
   rare: "bg-blue-100 text-blue-700",
-  shiny: "bg-yellow-100 text-yellow-700",
-  super: "bg-purple-100 text-purple-700",
+  shiny: "bg-yellow-100 text-yellow-700 ring-1 ring-yellow-400/50",
+  super: "bg-purple-100 text-purple-700 ring-1 ring-purple-500/50 rarity-super-badge",
+};
+
+const RARITY_FRAME: Record<string, string> = {
+  shiny: "ring-4 ring-yellow-400/70 shadow-[0_0_28px_rgba(250,204,21,0.45)]",
+  super: "ring-4 ring-purple-500/80 shadow-[0_0_32px_rgba(168,85,247,0.5)] rarity-super-glow",
 };
 
 interface PetDashboardProps {
@@ -45,7 +50,12 @@ export function PetDashboard({ pet, credits, onCreditsChange }: PetDashboardProp
 
       <Card className="rounded-2xl">
         <CardContent className="flex flex-col items-center gap-4 pt-6 sm:flex-row sm:items-start">
-          <div className="relative size-32 shrink-0">
+          <div
+            className={cn(
+              "relative size-32 shrink-0 rounded-2xl p-1",
+              RARITY_FRAME[pet.rarity]
+            )}
+          >
             <Image
               src={pet.imageUrl || species?.placeholderImage || "/pets/placeholders/emberfox.svg"}
               alt={pet.name}
@@ -66,7 +76,7 @@ export function PetDashboard({ pet, credits, onCreditsChange }: PetDashboardProp
                 </Badge>
               )}
               {pet.equippedCosmetic && (() => {
-                const cosmetic = SHOP_ITEMS.find((i) => i.id === pet.equippedCosmetic);
+                const cosmetic = findCosmeticItem(pet.equippedCosmetic);
                 return cosmetic ? (
                   <Badge className="bg-violet-100 text-violet-700 hover:bg-violet-100">
                     {cosmetic.name}

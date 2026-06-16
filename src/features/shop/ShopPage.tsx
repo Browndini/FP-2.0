@@ -5,9 +5,11 @@ import { httpsCallable } from "firebase/functions";
 import { doc, updateDoc } from "firebase/firestore";
 import { SHOP_ITEMS } from "@/lib/constants/game";
 import { db, functions } from "@/lib/firebase/client";
+import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/features/auth";
 import { usePet } from "@/features/pets";
 import { useInventory } from "./useInventory";
+import { IapSection } from "./IapSection";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,7 @@ export function ShopPage() {
       try {
         const call = httpsCallable(functions, "purchaseItem");
         await call({ itemId });
+        trackEvent("shop_purchase", { item_id: itemId });
         await refreshUserDoc();
       } catch (err: unknown) {
         const msg =
@@ -75,7 +78,13 @@ export function ShopPage() {
           )}
 
           <section>
-            <h2 className="mb-4 text-lg font-semibold">Cosmetics</h2>
+            <div className="mb-4 space-y-1">
+              <h2 className="text-lg font-semibold">Credit shop</h2>
+              <p className="text-sm text-muted-foreground">
+                Cosmetics only — no stat boosts. Earn credits from mini-games and
+                care.
+              </p>
+            </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {SHOP_ITEMS.map((item) => {
                 const owned = ownedIds.has(item.id);
@@ -129,6 +138,15 @@ export function ShopPage() {
               })}
             </div>
           </section>
+
+          <IapSection
+            ownedIds={ownedIds}
+            onPurchased={refreshUserDoc}
+            onEquip={handleEquip}
+            equippedId={pet?.equippedCosmetic}
+            equipPending={pending?.startsWith("equip-") ? pending.replace("equip-", "") : null}
+            hasPet={Boolean(pet)}
+          />
         </div>
       </main>
     </div>

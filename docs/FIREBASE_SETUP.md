@@ -259,6 +259,52 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) deployment section.
 
 ---
 
+## Stripe IAP (Phase 7)
+
+Premium cosmetics use **Stripe Checkout** — cosmetic items only, no stat or credit grants.
+
+### Product IDs
+
+| Item ID | Name | Stripe env var |
+|---------|------|----------------|
+| `iap-nebula-cape` | Nebula Cape | `STRIPE_PRICE_NEBULA_CAPE` |
+| `iap-aurora-halo` | Aurora Halo | `STRIPE_PRICE_AURORA_HALO` |
+| `iap-celestial-wings` | Celestial Wings | `STRIPE_PRICE_CELESTIAL_WINGS` |
+
+Create matching Products/Prices in the [Stripe Dashboard](https://dashboard.stripe.com/products) (test mode first).
+
+### Cloud Functions secrets
+
+```bash
+npx -y firebase-tools@latest functions:secrets:set STRIPE_SECRET_KEY
+npx -y firebase-tools@latest functions:secrets:set STRIPE_WEBHOOK_SECRET
+npx -y firebase-tools@latest functions:secrets:set STRIPE_PRICE_NEBULA_CAPE
+npx -y firebase-tools@latest functions:secrets:set STRIPE_PRICE_AURORA_HALO
+npx -y firebase-tools@latest functions:secrets:set STRIPE_PRICE_CELESTIAL_WINGS
+```
+
+Redeploy functions after setting secrets: `npm run deploy:all`
+
+### Stripe webhook
+
+Point Stripe webhook to:
+
+```
+https://us-central1-future-pets-3.cloudfunctions.net/stripeWebhook
+```
+
+Event: `checkout.session.completed`
+
+Clients also call `verifyIapPurchase` on return from Checkout as a fallback.
+
+### Analytics
+
+Firebase Analytics events: `sign_up`, `pet_created`, `mini_game_completed`, `shop_purchase`, `iap_checkout_started`, `iap_purchase_completed`, `app_error`.
+
+Enable Google Analytics for your Firebase project in the Firebase Console if events do not appear.
+
+---
+
 ## Troubleshooting
 
 | Issue | Fix |

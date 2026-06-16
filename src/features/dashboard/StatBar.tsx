@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,7 @@ interface StatBarProps {
   value: number;
 }
 
-export function StatBar({ stat, value }: StatBarProps) {
+export const StatBar = memo(function StatBar({ stat, value }: StatBarProps) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-sm">
@@ -42,4 +43,4 @@ export function StatBar({ stat, value }: StatBarProps) {
       <Progress value={value} className="h-2" />
     </div>
   );
-}
+});
