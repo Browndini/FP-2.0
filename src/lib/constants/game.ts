@@ -245,3 +245,78 @@ export const SHOP_ITEMS = [
 export type ShopItemId = (typeof SHOP_ITEMS)[number]["id"];
 
 export const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
+
+/** Mini-game definitions — keep in sync with functions/src/constants.ts */
+export const MINI_GAMES = {
+  "reflex-dash": {
+    id: "reflex-dash",
+    name: "Reflex Dash",
+    description: "Tap glowing targets before they fade. Trains speed.",
+    skillStat: "speed",
+    energyCost: 15,
+    durationSeconds: 30,
+    minDurationSeconds: 10,
+    maxScore: 45,
+    minMsBetweenHits: 350,
+  },
+  "memory-match": {
+    id: "memory-match",
+    name: "Memory Match",
+    description: "Flip cards and match pairs. Trains intelligence.",
+    skillStat: "intelligence",
+    energyCost: 15,
+    durationSeconds: 120,
+    minDurationSeconds: 20,
+    maxScore: 100,
+    pairCount: 8,
+  },
+} as const;
+
+export type MiniGameId = keyof typeof MINI_GAMES;
+export type MiniGameDefinition = (typeof MINI_GAMES)[MiniGameId];
+
+export const MINI_GAME_LIST: MiniGameDefinition[] = Object.values(MINI_GAMES);
+
+/** Reward tuning for completed mini-game sessions — TUNABLE. */
+export const MINI_GAME_REWARDS = {
+  baseCredits: 15,
+  creditsPerScore: 1.5,
+  skillGainPerScore: 0.25,
+  maxSkillGain: 12,
+  xpPerScore: 0.8,
+  maxXp: 45,
+  happinessGain: 5,
+} as const;
+
+/** Score formula for memory-match — duplicated server-side for validation. */
+export function computeMemoryMatchScore(pairs: number, moves: number): number {
+  const pairCount = MINI_GAMES["memory-match"].pairCount;
+  if (pairs <= 0) return 0;
+  if (pairs >= pairCount) {
+    return Math.max(
+      0,
+      Math.min(100, 100 - Math.max(0, moves - pairCount * 2) * 4)
+    );
+  }
+  return Math.min(70, pairs * 8);
+}
+
+export function computeMiniGameRewards(score: number) {
+  const credits =
+    MINI_GAME_REWARDS.baseCredits +
+    Math.floor(score * MINI_GAME_REWARDS.creditsPerScore);
+  const skillGain = Math.min(
+    MINI_GAME_REWARDS.maxSkillGain,
+    Math.floor(score * MINI_GAME_REWARDS.skillGainPerScore)
+  );
+  const xp = Math.min(
+    MINI_GAME_REWARDS.maxXp,
+    Math.floor(score * MINI_GAME_REWARDS.xpPerScore)
+  );
+  return {
+    credits,
+    skillGain,
+    xp,
+    happinessGain: MINI_GAME_REWARDS.happinessGain,
+  };
+}

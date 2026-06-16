@@ -8,3 +8,5 @@ export { renamePet } from "./renamePet";
 export { syncPetDecay } from "./syncPetDecay";
 export { purchaseItem } from "./purchaseItem";
 export { setUsername } from "./setUsername";
+export { startMiniGameSession } from "./startMiniGameSession";
+export { claimMiniGameReward } from "./claimMiniGameReward";

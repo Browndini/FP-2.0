@@ -14,6 +14,7 @@ interface AppHeaderProps {
 
 const NAV = [
   { href: "/dashboard", label: "My pet" },
+  { href: "/games", label: "Games" },
   { href: "/shop", label: "Shop" },
 ] as const;
 

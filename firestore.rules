@@ -32,6 +32,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Mini-game sessions: owner read only; all writes via Cloud Functions
+    match /miniGameSessions/{sessionId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow write: if false;
+    }
+
     // Deny everything else
     match /{document=**} {
       allow read, write: if false;

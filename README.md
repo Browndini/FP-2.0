@@ -87,7 +87,7 @@ Static export output is written to `out/` for Firebase Hosting. `npm start` is n
 - [x] Server-side pet stat roll (`functions/src/createStarterPet.ts`)
 - [x] Pet dashboard with all 8 stats + level/XP (`src/features/dashboard/`)
 
-### Phase 2 — Care loop (current)
+### Phase 2 — Care loop (complete)
 
 - [x] Care actions: feed, play, rest, heal with cooldowns (`src/features/care/`)
 - [x] Passive decay on dashboard load (`syncPetDecay` Cloud Function)
@@ -95,7 +95,19 @@ Static export output is written to `out/` for Firebase Hosting. `npm start` is n
 - [x] Low-stat warnings on dashboard
 - [x] One free pet rename (`renamePet` Cloud Function)
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for Phases 3–7.
+### Phase 3 — Economy + social (complete)
+
+- [x] Credits balance and cosmetic shop (`src/features/shop/`)
+- [x] Username setup and public pet profiles (`/pet-profile`)
+- [x] Inventory and server-validated purchases (`purchaseItem`)
+
+### Phase 4 — Mini-games (complete)
+
+- [x] Mini-game hub at `/games` with Phaser games (`src/features/minigames/`)
+- [x] Reflex Dash (speed) and Memory Match (intelligence)
+- [x] Session tracking in `miniGameSessions` + `startMiniGameSession` / `claimMiniGameReward`
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for Phases 5–7.
 
 ---
 

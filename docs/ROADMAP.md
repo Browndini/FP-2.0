@@ -2,7 +2,7 @@
 
 Phased build plan with acceptance criteria, likely files, Firebase changes, and AI prompt templates.
 
-**Current phase: 3**
+**Current phase: 4**
 
 ---
 
@@ -173,10 +173,10 @@ functions/src/createStarterPet.ts
 
 ### Acceptance criteria
 
-- [ ] Games playable in browser
-- [ ] Rewards only granted via Cloud Function after score validation
-- [ ] Skill stats and XP update on pet doc
-- [ ] Energy cost to play (optional — TUNABLE)
+- [x] Games playable in browser
+- [x] Rewards only granted via Cloud Function after score validation
+- [x] Skill stats and XP update on pet doc
+- [x] Energy cost to play (optional — TUNABLE)
 
 ### AI prompt template
 
@@ -201,7 +201,7 @@ functions/src/createStarterPet.ts
 - [ ] Items locked in escrow during pending trade
 - [ ] Atomic swap on accept; no duplication exploits
 - [ ] Trade history visible to both parties
-- [ ] Pets not tradable (cosmetics/consumables/credits only)
+- [ ] Pets are tradable
 
 ### AI prompt template
 

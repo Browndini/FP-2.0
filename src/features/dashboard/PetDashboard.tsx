@@ -4,7 +4,9 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShopLinkButton } from "@/components/AppHeader";
-import { NEED_STATS, SKILL_STATS, SHOP_ITEMS, STARTER_SPECIES } from "@/lib/constants/game";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { NEED_STATS, SKILL_STATS, SHOP_ITEMS, STARTER_SPECIES, MINI_GAMES } from "@/lib/constants/game";
 import { xpToNextLevel } from "@/lib/leveling";
 import type { PetWithId } from "@/features/pets/types";
 import { resolvePetLevelingFields } from "@/features/pets/types";
@@ -109,6 +111,21 @@ export function PetDashboard({ pet, credits, onCreditsChange }: PetDashboardProp
         credits={credits}
         onCreditsChange={onCreditsChange}
       />
+
+      <Card className="rounded-2xl border-primary/20 bg-primary/5">
+        <CardContent className="flex flex-col items-start justify-between gap-4 pt-6 sm:flex-row sm:items-center">
+          <div className="space-y-1">
+            <p className="font-semibold">Mini-games</p>
+            <p className="text-sm text-muted-foreground">
+              Train skills and earn credits — costs{" "}
+              {MINI_GAMES["reflex-dash"].energyCost} energy per session.
+            </p>
+          </div>
+          <Link href="/games" className={buttonVariants({ size: "sm" })}>
+            Play games
+          </Link>
+        </CardContent>
+      </Card>
 
       <Card className="rounded-2xl border-primary/20 bg-primary/5">
         <CardContent className="flex flex-col items-start justify-between gap-4 pt-6 sm:flex-row sm:items-center">
